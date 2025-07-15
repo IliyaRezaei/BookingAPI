@@ -1,0 +1,19 @@
+@Booking.API_HostAddress = http://localhost:5279
+
+GET {{Booking.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+GET {{Booking.API_HostAddress}}/api/amenities
+Accept: application/json
+
+###
+GET {{Booking.API_HostAddress}}/api/countries
+Accept: application/json
+
+###
+GET {{Booking.API_HostAddress}}/api/cities
+Accept: application/json
+
+###
+

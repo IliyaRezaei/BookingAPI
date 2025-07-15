@@ -1,0 +1,55 @@
+﻿using Booking.Domain.Abstractions.Repositories.Manager;
+using Booking.Domain.Contracts.Booking;
+using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Booking.Application.Validators.Booking
+{
+    internal class CreateBookingRequestValidator : AbstractValidator<CreateBookingRequest>
+    {
+        private readonly IRepositoryManager _repositoryManager;
+        private readonly Guid _propertyId;
+        public CreateBookingRequestValidator(IRepositoryManager repositoryManager, Guid propertyId)
+        {
+            _repositoryManager = repositoryManager;
+            _propertyId = propertyId;
+
+            RuleFor(x => x.CheckIn)
+                .Must(date => date >= DateOnly.FromDateTime(DateTime.Today));
+
+            RuleFor(x => x.CheckOut)
+                .Must(date => date <= DateOnly.FromDateTime(DateTime.Today.AddMonths(1)));
+
+            RuleFor(x => x)
+                .MustAsync(async (dates, cancellation) => await IsBookingDateValid(dates.CheckIn, dates.CheckOut));
+        }
+
+        private async Task<bool> IsBookingDateValid(DateOnly checkInDate, DateOnly checkOutDate)
+        {
+            var daysBooked = (checkInDate.ToDateTime(TimeOnly.MinValue) - checkOutDate.ToDateTime(TimeOnly.MinValue)).Days;
+            if (daysBooked < 1)
+            {
+                return false;
+            }
+            var bookings = await _repositoryManager.Bookings.GetAllUpcomingOfAPropertyById(_propertyId);
+            foreach (var booking in bookings)
+            {
+                var existingCheckIn = booking.CheckIn;
+                var existingCheckOut = booking.CheckOut;
+
+                bool isOverlapping = checkInDate < existingCheckOut && checkOutDate > existingCheckIn;
+
+                if (isOverlapping)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+}
