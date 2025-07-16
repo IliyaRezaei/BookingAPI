@@ -41,7 +41,8 @@ namespace Booking.Infrastructure.Repositories
 
         public async Task<ApplicationRole?> GetByName(string name)
         {
-            return await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == name);
+            return await _dbContext.Roles
+                .FirstOrDefaultAsync(r => r.NormalizedName == name.ToUpper());
         }
 
         public void Update(ApplicationRole role)

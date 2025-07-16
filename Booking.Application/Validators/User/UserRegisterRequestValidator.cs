@@ -19,6 +19,7 @@ namespace Booking.Application.Validators.User
             RuleFor(u => u.Email)
                 .NotEmpty().WithMessage("Email is required")
                 .EmailAddress().WithMessage("Invalid email format")
+                .MaximumLength(255)
                 .MustAsync(async (email, cancellation) => await IsUniqueEmail(email))
                 .WithMessage("User email must be unique");
 

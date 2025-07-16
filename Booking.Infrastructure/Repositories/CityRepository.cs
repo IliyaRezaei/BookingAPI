@@ -46,7 +46,8 @@ namespace Booking.Infrastructure.Repositories
 
         public async Task<City?> GetByName(string name)
         {
-            return await _dbContext.Cities.Include(c => c.Country).FirstOrDefaultAsync(c => c.Name == name);
+            return await _dbContext.Cities.Include(c => c.Country)
+                .FirstOrDefaultAsync(c => c.NormalizedName == name.ToUpper());
         }
 
         public void Update(City city)

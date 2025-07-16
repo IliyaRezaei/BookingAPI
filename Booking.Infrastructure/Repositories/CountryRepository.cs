@@ -41,7 +41,8 @@ namespace Booking.Infrastructure.Repositories
 
         public async Task<Country?> GetByName(string name)
         {
-            return await _dbContext.Countries.Where(c => c.Name == name).FirstOrDefaultAsync();
+            return await _dbContext.Countries.Where(c => c.NormalizedName == name.ToUpper())
+                .FirstOrDefaultAsync();
         }
 
         public void Update(Country country)

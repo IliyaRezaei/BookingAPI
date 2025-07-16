@@ -16,7 +16,9 @@ namespace Booking.Application.Mappers
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
+                NormalizedEmail = request.Email.ToUpper(),
                 Username = request.Username,
+                NormalizedUsername = request.Username.ToUpper()
             };
         }
         public static UserResponse ToResponse(this ApplicationUser user)

@@ -18,7 +18,7 @@ namespace Booking.Application.Validators.Role
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(50)
+                .MaximumLength(20)
                 .MustAsync(async (name, cancellation) => await IsUniqueName(name))
                 .WithMessage("Name must be unique"); ;
         }

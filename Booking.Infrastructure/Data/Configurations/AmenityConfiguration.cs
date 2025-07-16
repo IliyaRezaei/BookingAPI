@@ -15,6 +15,7 @@ namespace Booking.Infrastructure.Data.Configurations
         {
             builder.HasIndex(amenity => amenity.Name).IsUnique();
             builder.Property(amenity => amenity.Name).IsRequired().HasMaxLength(20);
+            builder.Property(amenity => amenity.NormalizedName).IsRequired().HasMaxLength(20);
             builder.Property(amenity => amenity.ImageUrl).IsRequired(false).HasMaxLength(int.MaxValue);
         }
     }

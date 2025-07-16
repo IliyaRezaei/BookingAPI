@@ -36,17 +36,20 @@ namespace Booking.Infrastructure.Repositories
 
         public async Task<ApplicationUser?> GetByEmail(string email)
         {
-            return await _dbContext.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Email == email);
+            return await _dbContext.Users.Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpper());
         }
 
         public async Task<ApplicationUser?> GetById(Guid id)
         {
-            return await _dbContext.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
+            return await _dbContext.Users.Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<ApplicationUser?> GetByUsername(string username)
         {
-            return await _dbContext.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Username == username);
+            return await _dbContext.Users.Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.NormalizedUsername == username.ToUpper());
         }
 
         public void Update(ApplicationUser user)

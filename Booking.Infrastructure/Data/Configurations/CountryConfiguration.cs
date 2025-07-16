@@ -15,6 +15,7 @@ namespace Booking.Infrastructure.Data.Configurations
         {
             builder.HasIndex(country => country.Name).IsUnique();
             builder.Property(country => country.Name).IsRequired().HasMaxLength(20);
+            builder.Property(country => country.NormalizedName).IsRequired().HasMaxLength(20);
             builder.Property(country => country.ImageUrl).IsRequired(false).HasMaxLength(int.MaxValue);
         }
     }

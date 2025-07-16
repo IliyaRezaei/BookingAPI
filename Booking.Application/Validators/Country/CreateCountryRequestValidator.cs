@@ -19,7 +19,7 @@ namespace Booking.Application.Validators.Country
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .MaximumLength(50)
+                .MaximumLength(20)
                 .MustAsync(async (name, cancellation) => await IsUniqueName(name))
                 .WithMessage("Name must be unique");
         }

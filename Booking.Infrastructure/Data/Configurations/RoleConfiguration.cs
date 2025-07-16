@@ -9,7 +9,8 @@ namespace Booking.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<ApplicationRole> builder)
         {
             builder.HasIndex(entity => entity.Name).IsUnique();
-            builder.Property(entity => entity.Name).HasMaxLength(10);
+            builder.Property(entity => entity.Name).HasMaxLength(20);
+            builder.Property(entity => entity.NormalizedName).HasMaxLength(20);
         }
     }
 }

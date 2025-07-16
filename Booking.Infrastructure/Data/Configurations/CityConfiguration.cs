@@ -15,6 +15,7 @@ namespace Booking.Infrastructure.Data.Configurations
         {
             builder.HasIndex(city => city.Name).IsUnique();
             builder.Property(city => city.Name).IsRequired().HasMaxLength(20);
+            builder.Property(city => city.NormalizedName).IsRequired().HasMaxLength(20);
             builder.Property(city => city.ImageUrl).IsRequired(false).HasMaxLength(int.MaxValue);
         }
     }

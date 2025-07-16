@@ -17,31 +17,40 @@ namespace Booking.Infrastructure.Data.Seeding
             var country = new Country
             {
                 Id = Guid.NewGuid(),
-                Name = "Iran"
+                Name = "Iran",
+                NormalizedName = "IRAN"
             };
             var cities = new List<City>
             {
-                new City { Id = Guid.NewGuid(), Name = "Mashhad", Country = country },
-                new City { Id = Guid.NewGuid(), Name = "Tehran", Country = country },
-                new City { Id = Guid.NewGuid(), Name = "Ahvaz", Country = country },
+                new City { Id = Guid.NewGuid(), Name = "Mashhad", NormalizedName = "MASHHAD", Country = country },
+                new City { Id = Guid.NewGuid(), Name = "Tehran", NormalizedName = "TEHRAN", Country = country },
+                new City { Id = Guid.NewGuid(), Name = "Ahvaz", NormalizedName = "AHVAZ", Country = country },
             };
             var amenities = new List<Amenity>
             {
-                new Amenity { Id = Guid.NewGuid(), Name = "Cooler" },
-                new Amenity { Id = Guid.NewGuid(), Name = "Heater" },
-                new Amenity { Id = Guid.NewGuid(), Name = "Elevator" },
+                new Amenity { Id = Guid.NewGuid(), Name = "Cooler", NormalizedName = "COOLER" },
+                new Amenity { Id = Guid.NewGuid(), Name = "Heater", NormalizedName = "HEATER" },
+                new Amenity { Id = Guid.NewGuid(), Name = "Elevator", NormalizedName = "ELEVATOR" },
             };
             var roles = new List<ApplicationRole>
             {
-                new ApplicationRole { Id = Guid.NewGuid(), Name = "USER" },
-                new ApplicationRole { Id = Guid.NewGuid(), Name = "MANAGER" },
-                new ApplicationRole { Id = Guid.NewGuid(), Name = "ADMIN" },
+                new ApplicationRole { Id = Guid.NewGuid(), Name = "USER", NormalizedName = "USER" },
+                new ApplicationRole { Id = Guid.NewGuid(), Name = "MANAGER", NormalizedName = "MANAGER" },
+                new ApplicationRole { Id = Guid.NewGuid(), Name = "ADMIN", NormalizedName = "ADMIN" },
             };
             var users = new List<ApplicationUser>
             {
-                new ApplicationUser { Id = Guid.NewGuid(), Email = "user@gmail.com", Username = "user", HashedPassword = HashPassword("User1234@") },
-                new ApplicationUser { Id = Guid.NewGuid(), Email = "manager@gmail.com", Username = "manager", HashedPassword = HashPassword("Manager1234@") },
-                new ApplicationUser { Id = Guid.NewGuid(), Email = "admin@gmail.com", Username = "admin", HashedPassword = HashPassword("Admin1234@") },
+                new ApplicationUser { Id = Guid.NewGuid(), Email = "user@gmail.com", 
+                    NormalizedEmail = "USER@GMAIL.COM", Username = "user", NormalizedUsername = "USER",
+                    HashedPassword = HashPassword("User1234@") },
+
+                new ApplicationUser { Id = Guid.NewGuid(), Email = "manager@gmail.com", 
+                    NormalizedEmail = "MANAGER@GMAIL.COM", Username = "manager", NormalizedUsername = "MANAGER",
+                    HashedPassword = HashPassword("Manager1234@") },
+
+                new ApplicationUser { Id = Guid.NewGuid(), Email = "admin@gmail.com", 
+                    NormalizedEmail = "ADMIN@GMAIL.COM", Username = "admin", NormalizedUsername = "ADMIN",
+                    HashedPassword = HashPassword("Admin1234@") },
             };
             var property = new Property
             {

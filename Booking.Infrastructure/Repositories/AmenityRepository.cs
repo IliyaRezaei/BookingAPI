@@ -52,7 +52,8 @@ namespace Booking.Infrastructure.Repositories
 
         public async Task<Amenity?> GetByName(string name)
         {
-            return await _dbContext.Amenities.Where(a => a.Name == name).FirstOrDefaultAsync();
+            return await _dbContext.Amenities.Where(a => a.NormalizedName == name.ToUpper())
+                .FirstOrDefaultAsync();
         }
 
         public void Update(Amenity amenity)

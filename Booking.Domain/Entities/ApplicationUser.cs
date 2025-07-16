@@ -11,7 +11,9 @@ namespace Booking.Domain.Entities
     {
         public Guid Id { get; set; }
         public string Email { get; set; }
+        public string NormalizedEmail { get; set; }
         public string Username { get; set; }
+        public string NormalizedUsername { get; set; }
         public string HashedPassword { get; set; }
         public bool IsHost { get; set; }
         public string? ImageUrl { get; set; }

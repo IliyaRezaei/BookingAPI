@@ -11,6 +11,7 @@ namespace Booking.Application.Mappers
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
+                NormalizedName = request.Name.ToUpper()
             };
         }
 
@@ -35,6 +36,7 @@ namespace Booking.Application.Mappers
             {
                 Id = amenityId,
                 Name = request.Name,
+                NormalizedName = request.Name.ToUpper()
             };
         }
     }

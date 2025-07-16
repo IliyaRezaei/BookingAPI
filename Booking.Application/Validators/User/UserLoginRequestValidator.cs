@@ -21,6 +21,7 @@ namespace Booking.Application.Validators.User
 
             RuleFor(u => u.Email)
                 .NotEmpty().WithMessage("Email is required")
+                .MaximumLength(255)
                 .EmailAddress().WithMessage("Invalid email format");
 
             RuleFor(u => u.Password)

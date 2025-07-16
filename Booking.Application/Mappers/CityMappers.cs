@@ -17,6 +17,7 @@ namespace Booking.Application.Mappers
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
+                NormalizedName = request.Name.ToUpper(),
                 Country = country,
             };
         }
@@ -42,6 +43,7 @@ namespace Booking.Application.Mappers
             {
                 Id = cityId,
                 Name = request.Name,
+                NormalizedName = request.Name.ToUpper(),
                 Country = country,
             };
         }

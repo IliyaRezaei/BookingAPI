@@ -10,6 +10,7 @@ namespace Booking.Domain.Entities
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public required string NormalizedName { get; set; }
         public ICollection<ApplicationUser>? Users { get; set; }
     }
 }

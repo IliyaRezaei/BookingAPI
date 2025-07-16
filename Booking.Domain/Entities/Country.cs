@@ -11,6 +11,7 @@ namespace Booking.Domain.Entities
     {
         public Guid Id { get; set; }
         public required string Name { get; set; }
+        public required string NormalizedName { get; set; }
         public ICollection<City>? Cities { get; set; } = new List<City>();
         public string? ImageUrl { get; set; }
     }

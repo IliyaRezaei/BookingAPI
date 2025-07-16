@@ -23,8 +23,10 @@ namespace Booking.Infrastructure.Data.Configurations
             builder.HasIndex(user => user.Username).IsUnique();
             builder.HasIndex(user => user.Email).IsUnique();
             builder.Property(user => user.IsHost).HasDefaultValue(false);
-            builder.Property(user => user.Username).HasMaxLength(50);
+            builder.Property(user => user.Username).HasMaxLength(20);
+            builder.Property(user => user.NormalizedUsername).HasMaxLength(20);
             builder.Property(user => user.Email).HasMaxLength(255);
+            builder.Property(user => user.NormalizedEmail).HasMaxLength(255);
             builder.Property(user => user.ImageUrl).HasMaxLength(int.MaxValue);
             builder.Property(user => user.RefreshToken).HasMaxLength(int.MaxValue);
             //builder.Property(user => user.RefreshTokenExpiryDate).HasDefaultValue(DateTime.UtcNow.AddDays(7));
