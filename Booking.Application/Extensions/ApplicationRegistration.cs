@@ -20,7 +20,7 @@ namespace Booking.Application.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
             services.AddScoped<IServiceManager, ServiceManager>();
-            services.AddValidatorsFromAssemblyContaining<IApplicationMarker>(ServiceLifetime.Singleton);
+            services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

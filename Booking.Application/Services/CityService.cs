@@ -30,7 +30,7 @@ namespace Booking.Application.Services
             var country = await _repositoryManager.Countries.GetById(countryId);
             if (country == null)
             {
-                throw new Exception("bad request");
+                throw new NotFoundException($"Country with id {countryId} not found");
             }
             var entity = city.ToEntity(country);
             await _repositoryManager.Cities.Create(entity);
@@ -43,7 +43,7 @@ namespace Booking.Application.Services
             var entity = await _repositoryManager.Cities.GetById(cityId);
             if (entity == null)
             {
-                throw new Exception("City with id:" + cityId + " not found");
+                throw new NotFoundException("City with id:" + cityId + " not found");
             }
             _repositoryManager.Cities.Delete(entity);
             await _repositoryManager.SaveAsync();
@@ -66,7 +66,7 @@ namespace Booking.Application.Services
             var city = await _repositoryManager.Cities.GetById(cityId);
             if (city == null)
             {
-                throw new Exception("City with id:" + cityId + " not found");
+                throw new NotFoundException("City with id:" + cityId + " not found");
             }
             return city.ToResponse();
         }

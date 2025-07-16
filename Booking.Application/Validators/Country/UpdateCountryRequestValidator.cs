@@ -28,11 +28,7 @@ namespace Booking.Application.Validators.Country
         private async Task<bool> IsUniqueName(string name)
         {
             var country = await _repositoryManager.Countries.GetByName(name);
-            if (country == null)
-            {
-                return true;
-            }
-            if (country.Id == _countryId)
+            if (country == null || country.Id == _countryId)
             {
                 return true;
             }

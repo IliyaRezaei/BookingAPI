@@ -51,6 +51,7 @@ namespace Booking.API.Middlewares
 
                 await context.Response.WriteAsJsonAsync(problem);
             }
+            /*
             catch (Exception ex)
             {
                 //Add logging
@@ -68,6 +69,7 @@ namespace Booking.API.Middlewares
 
                 await context.Response.WriteAsJsonAsync(problem);
             }
+            */
         }
     }
 }

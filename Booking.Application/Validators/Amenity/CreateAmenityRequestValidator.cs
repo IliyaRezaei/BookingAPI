@@ -21,7 +21,6 @@ namespace Booking.Application.Validators.Amenity
                 .MaximumLength(50)
                 .MustAsync(async (name, cancellation) => await IsUniqueName(name))
                 .WithMessage("Name must be unique");
-
         }
 
         private async Task<bool> IsUniqueName(string name)

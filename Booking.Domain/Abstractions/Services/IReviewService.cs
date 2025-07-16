@@ -13,7 +13,7 @@ namespace Booking.Domain.Abstractions.Services
         public Task<IEnumerable<ReviewResponse>> GetAll();
         public Task<ReviewResponse> GetById(Guid id);
         public Task<ReviewResponse> Create(CreateReviewRequest request, string username, Guid propertyId);
-        public Task Delete(Guid id);
+        public Task Delete(Guid id, string username);
         public Task Update(UpdateReviewRequest request, Guid id, string username, Guid propertyId);
     }
 }

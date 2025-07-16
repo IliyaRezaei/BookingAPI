@@ -32,6 +32,12 @@ namespace Booking.Application.Validators.Booking
         }
         private async Task<bool> IsBookingDateValid(DateOnly checkInDate, DateOnly checkOutDate)
         {
+            var daysBooked = (checkInDate.ToDateTime(TimeOnly.MinValue) - checkOutDate.ToDateTime(TimeOnly.MinValue)).Days;
+            if (daysBooked < 1)
+            {
+                return false;
+            }
+
             var allBookings = await _repositoryManager.Bookings.GetAllUpcomingOfAPropertyById(_propertyId);
             var bookings = allBookings.Where(b => b.Id != _bookingId).ToList();
             foreach (var booking in bookings)

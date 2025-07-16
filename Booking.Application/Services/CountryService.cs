@@ -38,7 +38,7 @@ namespace Booking.Application.Services
             var entity = await _repositoryManager.Countries.GetById(countryId);
             if (entity == null)
             {
-                throw new Exception("Country with id:" + countryId + " not found");
+                throw new NotFoundException("Country with id:" + countryId + " not found");
             }
             _repositoryManager.Countries.Delete(entity);
             await _repositoryManager.SaveAsync();
@@ -56,7 +56,7 @@ namespace Booking.Application.Services
             var cities = await _repositoryManager.Cities.GetAllByCountryId(countryId);
             if (country == null)
             {
-                throw new Exception("Country with id:" + countryId + " not found");
+                throw new NotFoundException("Country with id:" + countryId + " not found");
             }
             country.Cities = cities.ToList();
             return country.ToResponse();

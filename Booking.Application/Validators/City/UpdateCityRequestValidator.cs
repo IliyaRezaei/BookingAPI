@@ -32,11 +32,7 @@ namespace Booking.Application.Validators.City
         private async Task<bool> IsUniqueName(string name)
         {
             var city = await _repositoryManager.Cities.GetByName(name);
-            if (city == null)
-            {
-                return true;
-            }
-            if (city.Id == _cityId)
+            if (city == null || city.Id == _cityId)
             {
                 return true;
             }

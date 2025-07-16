@@ -1,4 +1,5 @@
-﻿using Booking.Domain.Contracts.User;
+﻿using Booking.Domain.Abstractions.Repositories.Manager;
+using Booking.Domain.Contracts.User;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -10,15 +11,22 @@ namespace Booking.Application.Validators.User
 {
     internal class UserRegisterRequestValidator : AbstractValidator<UserRegisterRequest>
     {
-        public UserRegisterRequestValidator()
+        private readonly IRepositoryManager _repositoryManager;
+        public UserRegisterRequestValidator(IRepositoryManager repositoryManager)
         {
+            _repositoryManager = repositoryManager;
+
             RuleFor(u => u.Email)
                 .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format");
+                .EmailAddress().WithMessage("Invalid email format")
+                .MustAsync(async (email, cancellation) => await IsUniqueEmail(email))
+                .WithMessage("User email must be unique");
 
             RuleFor(u => u.Username)
                 .NotEmpty().WithMessage("Username is required")
-                .Length(3, 20).WithMessage("Username must be 3 to 20 characters");
+                .Length(3, 20).WithMessage("Username must be 3 to 20 characters")
+                .MustAsync(async (name, cancellation) => await IsUniqueName(name))
+                .WithMessage("User name must be unique");
 
             RuleFor(u => u.Password)
                 .NotEmpty().WithMessage("Password is required")
@@ -26,6 +34,17 @@ namespace Booking.Application.Validators.User
 
             RuleFor(u => u.ConfirmPassword)
                 .Equal(u => u.Password).WithMessage("Passwords do not match");
+        }
+
+        private async Task<bool> IsUniqueName(string name)
+        {
+            var user = await _repositoryManager.Users.GetByUsername(name);
+            return user == null;
+        }
+        private async Task<bool> IsUniqueEmail(string email)
+        {
+            var user = await _repositoryManager.Users.GetByEmail(email);
+            return user == null;
         }
     }
 }

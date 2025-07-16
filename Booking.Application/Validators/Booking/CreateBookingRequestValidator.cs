@@ -35,6 +35,7 @@ namespace Booking.Application.Validators.Booking
             {
                 return false;
             }
+
             var bookings = await _repositoryManager.Bookings.GetAllUpcomingOfAPropertyById(_propertyId);
             foreach (var booking in bookings)
             {

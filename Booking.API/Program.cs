@@ -48,8 +48,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<FluentValidationMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<FluentValidationMiddleware>();
 app.MapControllers();
 
 app.UseCors("AllowAll");

@@ -43,7 +43,9 @@ namespace Booking.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteById([FromRoute] Guid id, Guid propertyId)
         {
-            await _serviceManager.Reviews.Delete(id);
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await _serviceManager.Reviews.Delete(id, username);
             return NoContent();
         }
     }

@@ -1,8 +1,10 @@
 ﻿using Booking.Application.Mappers;
+using Booking.Application.Validators.Role;
 using Booking.Domain.Abstractions.Repositories.Manager;
 using Booking.Domain.Abstractions.Services;
 using Booking.Domain.Contracts.Role;
 using Booking.Domain.Errors;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +22,9 @@ namespace Booking.Application.Services
         }
         public async Task<RoleResponse> Create(CreateRoleRequest request)
         {
+            var validator = new CreateRoleRequestValidator(_repositoryManager);
+            await validator.ValidateAndThrowAsync(request);
+
             var role = request.ToEntity();
             await _repositoryManager.Roles.Create(role);
             await _repositoryManager.SaveAsync();
@@ -31,7 +36,7 @@ namespace Booking.Application.Services
             var role = await _repositoryManager.Roles.GetById(id);
             if(role == null)
             {
-                throw new Exception("role not found");
+                throw new NotFoundException($"Role with id {id} not found");
             }
             _repositoryManager.Roles.Delete(role);
             await _repositoryManager.SaveAsync();
@@ -48,13 +53,16 @@ namespace Booking.Application.Services
             var role = await _repositoryManager.Roles.GetById(id);
             if (role == null)
             {
-                throw new Exception("role not found");
+                throw new NotFoundException($"Role with id {id} not found");
             }
             return role.ToResponse();
         }
 
         public async Task Update(UpdateRoleRequest request, Guid id)
         {
+            var validator = new UpdateRoleRequestValidator(_repositoryManager, id);
+            await validator.ValidateAndThrowAsync(request);
+
             var role = await _repositoryManager.Roles.GetById(id);
             if (role == null)
             {

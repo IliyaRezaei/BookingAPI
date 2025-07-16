@@ -28,11 +28,7 @@ namespace Booking.Application.Validators.Amenity
         private async Task<bool> IsUniqueName(string name)
         {
             var amenity = await _repositoryManager.Amenities.GetByName(name);
-            if (amenity == null)
-            {
-                return true;
-            }
-            if (amenity.Id == _amenityId)
+            if (amenity == null || amenity.Id == _amenityId)
             {
                 return true;
             }

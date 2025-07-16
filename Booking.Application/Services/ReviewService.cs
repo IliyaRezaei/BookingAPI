@@ -1,8 +1,11 @@
-﻿using Booking.Application.Mappers;
+﻿using Booking.Application.Errors;
+using Booking.Application.Mappers;
+using Booking.Application.Validators.Review;
 using Booking.Domain.Abstractions.Repositories.Manager;
 using Booking.Domain.Abstractions.Services;
 using Booking.Domain.Contracts.Review;
 using Booking.Domain.Errors;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +25,19 @@ namespace Booking.Application.Services
 
         public async Task<ReviewResponse> Create(CreateReviewRequest request, string username, Guid propertyId)
         {
-            var client = await _repositoryManager.Users.GetByUsername(username);
-            var property = await _repositoryManager.Properties.GetById(propertyId);
-            if (property == null || client == null)
+            var validator = new CreateReviewRequestValidator();
+            validator.ValidateAndThrow(request);
+
+            var client = await _repositoryManager.Users.GetByUsername(username) ?? 
+                throw new UnauthorizedException("Login and try again");
+
+            var property = await _repositoryManager.Properties.GetById(propertyId) ??
+                throw new NotFoundException($"Property with id {propertyId} not found");
+
+            var clientReviews = await _repositoryManager.Reviews.GetAllReviewsOfAUser(client);
+            if (clientReviews.Any(x => x.Property == property))
             {
-                throw new Exception("Bad Request");
+                throw new ForbiddenException("You are not allowed to comment multiple times on a single property");
             }
             var review = request.ToEntity(client, property);
             await _repositoryManager.Reviews.Create(review);
@@ -34,12 +45,15 @@ namespace Booking.Application.Services
             return review.ToResponse();
         }
 
-        public async Task Delete(Guid id)
+        public async Task Delete(Guid id, string username)
         {
-            var review = await _repositoryManager.Reviews.GetById(id);
+            var client = await _repositoryManager.Users.GetByUsername(username) ??
+                throw new UnauthorizedException("Login and try again");
+            var clientReviews = await _repositoryManager.Reviews.GetAllReviewsOfAUser(client);
+            var review = clientReviews.FirstOrDefault(x => x.Id == id);
             if (review == null)
             {
-                throw new Exception("Review not found");
+                throw new NotFoundException($"Review with id {id} not found");
             }
             _repositoryManager.Reviews.Delete(review);
             await _repositoryManager.SaveAsync();
@@ -56,26 +70,29 @@ namespace Booking.Application.Services
             var review = await _repositoryManager.Reviews.GetById(id);
             if(review == null)
             {
-                throw new Exception("Reviw not found");
+                throw new NotFoundException($"Reviw with id {id} not found");
             }
             return review.ToResponse();
         }
 
         public async Task Update(UpdateReviewRequest request,Guid id , string username, Guid propertyId)
         {
+            var validator = new UpdateReviewRequestValidator();
+            validator.ValidateAndThrow(request);
 
-            var review = await _repositoryManager.Reviews.GetById(id);
+            var client = await _repositoryManager.Users.GetByUsername(username) ??
+                throw new UnauthorizedException("Login and try again");
+
+            var property = await _repositoryManager.Properties.GetById(propertyId) ??
+                throw new NotFoundException($"Property with id {propertyId} not found");
+
+            var clientReviews = await _repositoryManager.Reviews.GetAllReviewsOfAUser(client);
+            var review = clientReviews.FirstOrDefault(x => x.Id == id);
             if (review == null)
             {
                 throw new NotFoundException($"Review with id {id} not found");
             }
 
-            var client = await _repositoryManager.Users.GetByUsername(username);
-            var property = await _repositoryManager.Properties.GetById(propertyId);
-            if (property == null || client == null)
-            {
-                throw new Exception("Bad Request");
-            }
             var entity = request.ToEntity(id, client, property);
             _repositoryManager.Reviews.Update(entity);
             await _repositoryManager.SaveAsync();

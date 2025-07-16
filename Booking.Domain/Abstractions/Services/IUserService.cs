@@ -15,8 +15,6 @@ namespace Booking.Domain.Abstractions.Services
         public Task<UserResponse> GetById(Guid id);
         public Task<UserResponse> Register(UserRegisterRequest request);
         public Task<string> Login(UserLoginRequest request);
-        string HashPassword(string password);
-        Task<ApplicationUser> ValidateUser(UserLoginRequest request);
-        public Task Delete(Guid id);
+        public Task Delete(Guid id, string username);
     }
 }
