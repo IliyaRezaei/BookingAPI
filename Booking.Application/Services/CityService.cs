@@ -24,7 +24,7 @@ namespace Booking.Application.Services
         }
         public async Task<CityResponse> Create(CreateCityRequest city, Guid countryId)
         {
-            var validator = new CreateCityRequestValidator(_repositoryManager, countryId);
+            var validator = new CreateCityRequestValidator(_repositoryManager);
             await validator.ValidateAndThrowAsync(city);
 
             var country = await _repositoryManager.Countries.GetById(countryId);

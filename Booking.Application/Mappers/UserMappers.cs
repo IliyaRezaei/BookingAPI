@@ -1,4 +1,5 @@
-﻿using Booking.Domain.Contracts.User;
+﻿using Booking.Application.Utilities;
+using Booking.Domain.Contracts.User;
 using Booking.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,8 @@ namespace Booking.Application.Mappers
                 Email = request.Email,
                 NormalizedEmail = request.Email.ToUpper(),
                 Username = request.Username,
-                NormalizedUsername = request.Username.ToUpper()
+                NormalizedUsername = request.Username.ToUpper(),
+                HashedPassword = request.Password.HashPassword(),
             };
         }
         public static UserResponse ToResponse(this ApplicationUser user)

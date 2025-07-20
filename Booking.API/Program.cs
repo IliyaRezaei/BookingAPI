@@ -8,12 +8,22 @@ using FluentValidation;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+builder.Services.AddProblemDetails(configure =>
+{
+    configure.CustomizeProblemDetails = context =>
+    {
+        context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier ?? Activity.Current?.Id);
+    };
+});
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -28,6 +38,8 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -42,14 +54,12 @@ using (var scope = app.Services.CreateScope())
     await SeedingDbContext.SeedAsync(context);
 }
 app.UseStaticFiles();
-
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseMiddleware<FluentValidationMiddleware>();
 app.MapControllers();
 
 app.UseCors("AllowAll");

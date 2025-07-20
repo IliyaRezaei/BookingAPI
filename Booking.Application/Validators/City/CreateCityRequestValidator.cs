@@ -12,33 +12,21 @@ namespace Booking.Application.Validators.City
     internal class CreateCityRequestValidator : AbstractValidator<CreateCityRequest>
     {
         private readonly IRepositoryManager _repositoryManager;
-        private readonly Guid _countryId;
-        public CreateCityRequestValidator(IRepositoryManager repositoryManager, Guid countryId)
+        public CreateCityRequestValidator(IRepositoryManager repositoryManager)
         {
             _repositoryManager = repositoryManager;
-            _countryId = countryId;
 
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .MaximumLength(20)
                 .MustAsync(async (name, cancellation) => await IsUniqueName(name))
                 .WithMessage("Name must be unique");
-
-            RuleFor(x => x)
-                .MustAsync(async (request, cancellation) => await CountryExistsById())
-                .WithMessage($"Country with Id {countryId} does not exist");
         }
 
         private async Task<bool> IsUniqueName(string name)
         {
             var city = await _repositoryManager.Cities.GetByName(name);
             return city == null;
-        }
-
-        private async Task<bool> CountryExistsById()
-        {
-            var country = await _repositoryManager.Countries.GetById(_countryId);
-            return country != null;
         }
     }
 }

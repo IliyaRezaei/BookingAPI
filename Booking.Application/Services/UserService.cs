@@ -36,23 +36,17 @@ namespace Booking.Application.Services
             var validator = new UserRegisterRequestValidator(_repositoryManager);
             await validator.ValidateAndThrowAsync(request);
 
-            var role = await _repositoryManager.Roles.GetByName("USER");
-            var newUser = new ApplicationUser
-            {
-                Id = Guid.NewGuid(),
-                Email = request.Email,
-                Username = request.Username,
-                HashedPassword = request.Password.HashPassword(),
-            };
+            var role = await _repositoryManager.Roles.GetByName("User");
+            var user = request.ToEntity();
             if (role == null)
             {
                 throw new ForbiddenException($"User registeration is down, contact admin");
                 //throw new NotFoundException($"Role with name USER not found");
             }
-            newUser.Roles.Add(role);
-            await _repositoryManager.Users.Create(newUser);
+            user.Roles.Add(role);
+            await _repositoryManager.Users.Create(user);
             await _repositoryManager.SaveAsync();
-            return newUser.ToResponse();
+            return user.ToResponse();
         }
 
         public async Task<string> Login(UserLoginRequest request)
