@@ -23,10 +23,6 @@ namespace Booking.Application.Validators.City
                 .MaximumLength(20)
                 .MustAsync(async (name, cancellation) => await IsUniqueName(name))
                 .WithMessage("Name must be unique");
-
-            RuleFor(x => x.CountryId)
-                .MustAsync(async (countryId, cancellation) => await CountryExistsById(countryId))
-                .WithMessage(countryId => $"Country with Id {countryId} does not exist");
         }
 
         private async Task<bool> IsUniqueName(string name)
@@ -37,12 +33,6 @@ namespace Booking.Application.Validators.City
                 return true;
             }
             return false;
-        }
-
-        private async Task<bool> CountryExistsById(Guid countryId)
-        {
-            var country = await _repositoryManager.Countries.GetById(countryId);
-            return country != null;
         }
     }
 }

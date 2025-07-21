@@ -13,21 +13,22 @@ namespace Booking.Application.Unit.Tests.Mappers
 {
     public class CityMapperTests
     {
+        public Country Country { get; set; } = new Country
+        {
+            Id = Guid.NewGuid(),
+            Name = "Country",
+            NormalizedName = "COUNTRY",
+            ImageUrl = ""
+        };
+
         [Fact]
-        public void CreateCityRequestMapper_ShouldMakeAValidIdAndCountry()
+        public void ToEntity_ShouldReturnValidCityEntity_FromCreateCityRequest()
         {
             //Arrange
             var request = new CreateCityRequest { Name = "Cooler" };
-            var country = new Country 
-            { 
-                Id = Guid.NewGuid(),
-                Name = "Country",
-                NormalizedName = "COUNTRY",
-                ImageUrl = ""
-            };
 
             //Act
-            var entity = request.ToEntity(country);
+            var entity = request.ToEntity(Country);
 
             //Assert
             Assert.IsType<Guid>(entity.Id);
@@ -39,20 +40,13 @@ namespace Booking.Application.Unit.Tests.Mappers
         }
 
         [Fact]
-        public void UpdateCityRequestMapper_ShouldMapValidAndCountry()
+        public void ToEntity_ShouldReturnValidCityEntity_FromUpdateCityRequest()
         {
             //Arrange
             var request = new UpdateCityRequest { Name = "Cooler" };
-            var country = new Country
-            {
-                Id = Guid.NewGuid(),
-                Name = "Country",
-                NormalizedName = "COUNTRY",
-                ImageUrl = ""
-            };
 
             //Act
-            var entity = request.ToEntity(Guid.NewGuid(), country);
+            var entity = request.ToEntity(Guid.NewGuid(), Country);
 
             //Assert
             Assert.IsType<Guid>(entity.Id);
@@ -61,6 +55,50 @@ namespace Booking.Application.Unit.Tests.Mappers
             Assert.Equal(request.Name.ToUpper(), entity.NormalizedName);
             Assert.NotNull(entity.Country);
             Assert.IsType<Country>(entity.Country);
+        }
+        [Fact]
+        public void ToResponse_ShouldReturnValidCityResponse_FromAnCityEntity()
+        {
+            //Arrange
+            var entity = new City
+            {
+                Id = Guid.NewGuid(),
+                Name = "City",
+                NormalizedName = "City",
+                ImageUrl = "",
+                Country = Country
+            };
+
+            //Act
+            var response = entity.ToResponse();
+
+            //Assert
+            Assert.NotNull(response);
+            Assert.IsType<CityResponse>(response);
+            Assert.Equal(entity.Id, response.Id);
+            Assert.Equal(entity.Name, response.Name);
+            Assert.Equal(entity.ImageUrl, response.ImageUrl);
+        }
+
+        [Fact]
+        public void ToResponse_ShouldReturnValidCitiesResponses_FromListOfCityEntities()
+        {
+            //Arrange
+            var entities = new List<City>
+            {
+                new City { Id = Guid.NewGuid(), Name = "FirstCity", NormalizedName = "FIRSTCITY", ImageUrl = "", Country = Country},
+                new City { Id = Guid.NewGuid(), Name = "SecondCity", NormalizedName = "SECONDCITY", ImageUrl = "", Country = Country},
+            };
+
+            //Act
+            var responses = entities.ToResponse();
+
+            //Assert
+            Assert.NotNull(responses);
+            Assert.IsType<List<CityResponse>>(responses);
+            Assert.All(entities, entity => Assert.Contains(responses, city => city.Name == entity.Name));
+            Assert.All(entities, entity => Assert.Contains(responses, city => city.Id == entity.Id));
+            Assert.All(entities, entity => Assert.Contains(responses, city => city.ImageUrl == entity.ImageUrl));
         }
     }
 }

@@ -24,14 +24,20 @@ namespace Booking.Application.Unit.Tests.Services
         {
             _repository = Substitute.For<IRepositoryManager>();
             _service = new CountryService(_repository);
+            ExistingCountry = new Country { Id = Guid.NewGuid(), Name = "Country", NormalizedName = "COUNTRY", ImageUrl = "" };
+            AllCountries = new List<Country>
+            {
+                new Country { Id = Guid.NewGuid(), Name = "FirstCountry", NormalizedName = "FIRSTCOUNTRY", ImageUrl = "" },
+                new Country { Id = Guid.NewGuid(), Name = "SecondCountry", NormalizedName = "SECONDCOUNTRY", ImageUrl = "" },
+                new Country { Id = Guid.NewGuid(), Name = "ThirdCountry", NormalizedName = "THIRDCOUNTRY", ImageUrl = "" },
+            };
         }
 
         [Fact]
-        public async Task Create_ValidRequest_ShouldCreateAndSaveChangesThenReturnCountryResponse()
+        public async Task Create_ShouldCreateAndReturnCountryResponse_WhenValidRequest()
         {
             //Arrange
             var request = new CreateCountryRequest { Name = "Iran" };
-            var entity = request.ToEntity();
 
             //Act
             var result = await _service.Create(request);
@@ -49,24 +55,16 @@ namespace Booking.Application.Unit.Tests.Services
             Assert.IsType<CountryResponse>(result);
             Assert.IsType<Guid>(result.Id);
             Assert.NotEqual(result.Id, Guid.Empty);
-            Assert.Equal(result.Name, entity.Name);
+            Assert.Equal(result.Name, request.Name);
             Assert.Null(result.ImageUrl);
         }
 
         [Fact]
-        public async Task Create_ExistingCountry_ShouldFailAndThrowValidationException()
+        public async Task Create_ShouldThrowValidationException_WhenNameIsNotUnique()
         {
             //Arrange
             var request = new CreateCountryRequest { Name = "Country" };
-            var entity = request.ToEntity();
-            var existingCountry = new Country
-            {
-                Id = Guid.NewGuid(),
-                Name = "Country",
-                NormalizedName = "COUNTRY",
-                ImageUrl = ""
-            };
-            _repository.Countries.GetByName("Country").Returns(existingCountry);
+            _repository.Countries.GetByName(ExistingCountry.Name).Returns(ExistingCountry);
 
             //Act
             var exception = await Assert.ThrowsAsync<ValidationException>(async () => await _service.Create(request));
@@ -79,39 +77,39 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task Update_ExistingCountry_ShouldUpdateAndSaveChangesThenReturnCountryResponse()
+        public async Task Update_ShouldUpdate_WhenCountryExists()
         {
             //Arrange
-            var id = Guid.NewGuid();
             var request = new UpdateCountryRequest
             {
                 Name = "New Cooler",
             };
-            var existingEntity = new Country
-            {
-                Id = id,
-                Name = "Cooler",
-                NormalizedName = "Cooler",
-                ImageUrl = ""
-            };
-            _repository.Countries.GetById(id).Returns(existingEntity);
+            _repository.Countries.GetById(ExistingCountry.Id).Returns(ExistingCountry);
+            _repository.Countries
+                .When(x => x.Update(Arg.Any<Country>()))
+                .Do(call =>
+                {
+                    var country = call.Arg<Country>();
+                    ExistingCountry.Name = country.Name;
+                });
 
             //Act
-            await _service.Update(request, id);
+            await _service.Update(request, ExistingCountry.Id);
 
             //Assert
             _repository.Countries.Received(1).Update(
                 Arg.Is<Country>(
-                    e => e.Id == id &&
+                    e => e.Id == ExistingCountry.Id &&
                     e.Name == request.Name &&
                     e.NormalizedName == request.Name.ToUpper())
                 );
-            await _repository.Countries.Received(1).GetById(id);
+            await _repository.Countries.Received(1).GetById(ExistingCountry.Id);
             await _repository.Received(1).SaveAsync();
+            Assert.Equal(request.Name, ExistingCountry.Name);
         }
 
         [Fact]
-        public async Task Update_NonExistingCountry_ShouldUpdateAndSaveChangesThenReturnCountryResponse()
+        public async Task Update_ShouldThrowNotFoundException_WhenCountryDoesntExist()
         {
             //Arrange
             var id = Guid.NewGuid();
@@ -129,34 +127,27 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_ExistingCountry_ShouldDeleteAndSaveChanges()
+        public async Task Delete_ShouldDelete_WhenCountryExists()
         {
             //Arrange
-            var id = Guid.NewGuid();
-            var existingEntity = new Country
-            {
-                Id = id,
-                Name = "Cooler",
-                NormalizedName = "COOLER"
-            };
-            _repository.Countries.GetById(id).Returns(existingEntity);
+            _repository.Countries.GetById(ExistingCountry.Id).Returns(ExistingCountry);
 
             // Act
-            await _service.Delete(id);
+            await _service.Delete(ExistingCountry.Id);
 
             // Assert
             _repository.Countries.Received(1).Delete(
                 Arg.Is<Country>(
-                    e => e.Id == existingEntity.Id &&
-                    e.Name == "Cooler" &&
-                    e.NormalizedName == "COOLER")
+                    e => e.Id == ExistingCountry.Id &&
+                    e.Name == ExistingCountry.Name &&
+                    e.NormalizedName == ExistingCountry.NormalizedName)
                 );
-            await _repository.Countries.Received(1).GetById(id);
+            await _repository.Countries.Received(1).GetById(ExistingCountry.Id);
             await _repository.Received(1).SaveAsync();
         }
 
         [Fact]
-        public async Task Delete_NonExistingCountry_ShouldThrowsNotFoundException()
+        public async Task Delete_ShouldThrowNotFoundException_WhenCountryDoesntExist()
         {
             //Arrange
             var id = Guid.NewGuid();
@@ -173,33 +164,25 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetById_ExistingCountry_ShouldReturnCountryResponse()
+        public async Task GetById_ShouldReturnCountryResponse_WhenCountryExists()
         {
             //Arrange
-            var id = Guid.NewGuid();
-            var expectedEntity = new Country
-            {
-                Id = id,
-                Name = "Cooler",
-                NormalizedName = "COOLER",
-                ImageUrl = ""
-            };
-            _repository.Countries.GetById(id).Returns(expectedEntity);
+            _repository.Countries.GetById(ExistingCountry.Id).Returns(ExistingCountry);
 
             //Act
-            var result = await _service.GetById(id);
+            var result = await _service.GetById(ExistingCountry.Id);
 
             //Assert
-            await _repository.Countries.Received(1).GetById(id);
+            await _repository.Countries.Received(1).GetById(ExistingCountry.Id);
 
             Assert.NotNull(result);
             Assert.IsType<CountryResponse>(result);
-            Assert.Equal(expectedEntity.Id, result.Id);
-            Assert.Equal(expectedEntity.Name, result.Name);
+            Assert.Equal(ExistingCountry.Id, result.Id);
+            Assert.Equal(ExistingCountry.Name, result.Name);
         }
 
         [Fact]
-        public async Task GetById_NonExistingCountry_ShouldThrowsNotFoundException()
+        public async Task GetById_ShouldThrowNotFoundException_WhenCountryDoesntExist()
         {
             //Arrange
             var id = Guid.NewGuid();
@@ -216,49 +199,21 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ExistingCountries_ShouldReturnAllCountries()
+        public async Task GetAll_ShouldReturnAllCountriesAsCountryResponse_WhenCountriesExist()
         {
             //Arrange
-            var expectedEntities = new List<Country>
-            {
-                new Country
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cooler",
-                    NormalizedName = "Cooler",
-                    ImageUrl = ""
-                },new Country
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Heater",
-                    NormalizedName = "HEATER",
-                    ImageUrl = ""
-                },new Country
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Gym",
-                    NormalizedName = "GYM",
-                    ImageUrl = ""
-                },
-            };
-            _repository.Countries.GetAll().Returns(expectedEntities);
+            _repository.Countries.GetAll().Returns(AllCountries);
 
             //Act
-            var result = await _service.GetAll();
+            var countriesResponse = await _service.GetAll();
 
             //Assert
-            Assert.NotNull(result);
-            Assert.IsType<List<CountryResponse>>(result);
-            int count = 0;
-            foreach (var country in result)
-            {
-                var expected = expectedEntities[count++];
-                Assert.IsType<Guid>(country.Id);
-                Assert.NotEqual(Guid.Empty, country.Id);
-                Assert.Equal(expected.Id, country.Id);
-                Assert.Equal(expected.Name, country.Name);
-            }
-            Assert.Equal(expectedEntities.Count, count);
+            Assert.NotNull(countriesResponse);
+            Assert.IsType<List<CountryResponse>>(countriesResponse);
+            Assert.Equal(AllCountries.Count(), countriesResponse.Count());
+            Assert.All(countriesResponse, country => Assert.NotNull(country.Name));
         }
+        private Country ExistingCountry { get; }
+        private IEnumerable<Country> AllCountries;
     }
 }

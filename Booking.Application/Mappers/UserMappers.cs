@@ -36,7 +36,7 @@ namespace Booking.Application.Mappers
         }
         public static IEnumerable<UserResponse> ToResponse(this IEnumerable<ApplicationUser> users)
         {
-            return users.Select(u => u.ToResponse());
+            return users.Select(u => u.ToResponse()).ToList();
         }
     }
 }

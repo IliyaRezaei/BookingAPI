@@ -36,7 +36,7 @@ namespace Booking.Application.Validators.User
         private async Task<bool> ValidateUser(UserLoginRequest request)
         {
             var user = await _repositoryManager.Users.GetByEmail(request.Email);
-            if (user != null && user.HashedPassword == request.Password.HashPassword())
+            if (user != null && AuthExtensions.VerifyPassword(request.Password, user.HashedPassword))
             {
                 return true;
             }

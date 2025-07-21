@@ -1,17 +1,11 @@
 ﻿using Booking.Application.Services.Manager;
-using Booking.Application.Validators.User;
 using Booking.Domain.Abstractions.Services.Manager;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Booking.Application.Extensions
 {

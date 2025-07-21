@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Application", "Book
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Infrastructure", "Booking.Infrastructure\Booking.Infrastructure.csproj", "{5588D62F-3BA2-400D-AA56-40830E5D76E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Application.Unit.Tests", "Booking.Application.Unit.Tests\Booking.Application.Unit.Tests.csproj", "{9E8B8D3F-9AEF-4CE9-9FC3-D2CA86DB6E78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Application.Tests.Unit", "Booking.Application.Unit.Tests\Booking.Application.Tests.Unit.csproj", "{9E8B8D3F-9AEF-4CE9-9FC3-D2CA86DB6E78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

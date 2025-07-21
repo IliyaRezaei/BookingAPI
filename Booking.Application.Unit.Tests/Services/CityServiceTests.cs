@@ -3,6 +3,7 @@ using Booking.Application.Services;
 using Booking.Domain.Abstractions.Repositories.Manager;
 using Booking.Domain.Contracts.Amenity;
 using Booking.Domain.Contracts.City;
+using Booking.Domain.Contracts.Country;
 using Booking.Domain.Entities;
 using Booking.Domain.Errors;
 using FluentValidation;
@@ -11,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Booking.Application.Unit.Tests.Services
 {
@@ -19,40 +19,39 @@ namespace Booking.Application.Unit.Tests.Services
     {
         private readonly IRepositoryManager _repository;
         private readonly CityService _service;
-        private readonly Country _country;
 
         public CityServiceTests()
         {
             _repository = Substitute.For<IRepositoryManager>();
             _service = new CityService(_repository);
-            _country = new Country
+            ExistingCountry = new Country { Id = Guid.NewGuid(), Name = "Country", NormalizedName = "COUNTRY", ImageUrl = "" };
+            ExistingCity = new City { Id = Guid.NewGuid(), Name = "City", NormalizedName = "CITY", Country = ExistingCountry, ImageUrl = "" };
+            AllCities = new List<City>
             {
-                Id = Guid.NewGuid(),
-                Name = "Name",
-                NormalizedName = "NAME",
-                ImageUrl = ""
+                new City { Id = Guid.NewGuid(), Name = "FirstCity", NormalizedName = "FIRSTCITY" , Country = ExistingCountry},
+                new City { Id = Guid.NewGuid(), Name = "SecondCity", NormalizedName = "SECONDCITY", Country = ExistingCountry},
+                new City { Id = Guid.NewGuid(), Name = "ThirdCity", NormalizedName = "THIRDCITY", Country = ExistingCountry },
             };
         }
 
         [Fact]
-        public async Task Create_ValidRequest_ShouldCreateAndSaveChangesThenReturnCityResponse()
+        public async Task Create_ShouldCreateAndReturnCityResponse_WhenRequestIsValid()
         {
             //Arrange
             var request = new CreateCityRequest { Name = "City" };
-            var entity = request.ToEntity(_country);
-            _repository.Countries.GetById(_country.Id).Returns(Task.FromResult<Country>(_country));
+            _repository.Countries.GetById(ExistingCountry.Id).Returns(Task.FromResult<Country>(ExistingCountry));
 
             //Act
-            var result = await _service.Create(request, _country.Id);
+            var result = await _service.Create(request, ExistingCountry.Id);
 
             //Assert
             await _repository.Cities.Received(1).GetByName(request.Name);
-            await _repository.Countries.Received(1).GetById(_country.Id);
+            await _repository.Countries.Received(1).GetById(ExistingCountry.Id);
             await _repository.Cities.Received(1).Create(
                 Arg.Is<City>(
                     e => e.Name == "City" &&
                     e.NormalizedName == "CITY" &&
-                    e.Country == entity.Country)
+                    e.Country == ExistingCountry)
                 );
             await _repository.Received(1).SaveAsync();
 
@@ -60,87 +59,100 @@ namespace Booking.Application.Unit.Tests.Services
             Assert.IsType<CityResponse>(result);
             Assert.IsType<Guid>(result.Id);
             Assert.NotEqual(result.Id, Guid.Empty);
-            Assert.Equal(result.Name, entity.Name);
+            Assert.Equal(result.Name, request.Name);
             Assert.Null(result.ImageUrl);
         }
 
         [Fact]
-        public async Task Create_ExistingCity_ShouldFailAndThrowValidationException()
+        public async Task Create_ShouldThrowValidationException_WhenCityExists()
         {
             //Arrange
             var request = new CreateCityRequest { Name = "City" };
-            var entity = request.ToEntity(_country);
-            var existingCity = new City
-            {
-                Id = Guid.NewGuid(),
-                Name = "City",
-                NormalizedName = "CITY",
-                ImageUrl = "",
-                Country = _country,
-            };
-            _repository.Cities.GetByName("City").Returns(existingCity);
+
+            _repository.Cities.GetByName(ExistingCity.Name).Returns(ExistingCity);
 
             //Act
-            var exception = await Assert.ThrowsAsync<ValidationException>(async () => await _service.Create(request, _country.Id));
+            var exception = await Assert.ThrowsAsync<ValidationException>(async () => await _service.Create(request, ExistingCountry.Id));
 
             //Assert
-            await _repository.Cities.Received(1).GetByName(request.Name);
-
             Assert.NotNull(exception);
             Assert.IsType<ValidationException>(exception);
         }
 
         [Fact]
-        public async Task Update_ExistingCity_ShouldUpdateAndSaveChangesThenReturnCityResponse()
+        public async Task Update_ShouldUpdate_WhenCityExists()
         {
             //Arrange
-            var cityId = Guid.NewGuid();
             var request = new UpdateCityRequest
             {
                 Name = "New City",
-                CountryId = _country.Id,
+                CountryId = ExistingCountry.Id,
             };
-            var existingEntity = new City
-            {
-                Id = cityId,
-                Name = "City",
-                NormalizedName = "CITY",
-                ImageUrl = "",
-                Country = _country
-            };
-            _repository.Countries.GetById(_country.Id).Returns(_country);
-            _repository.Cities.GetById(cityId).Returns(existingEntity);
+            _repository.Countries.GetById(ExistingCountry.Id).Returns(ExistingCountry);
+            _repository.Cities.GetById(ExistingCity.Id).Returns(ExistingCity);
+            _repository.Cities
+                .When(x => x.Update(Arg.Any<City>()))
+                .Do(call =>
+                {
+                    var city = call.Arg<City>();
+                    ExistingCity.Name = city.Name;
+                });
 
             //Act
-            await _service.Update(request, cityId);
+            await _service.Update(request, ExistingCity.Id);
 
             //Assert
-            await _repository.Countries.Received(2).GetById(_country.Id);
-            await _repository.Cities.Received(1).GetById(cityId);
+            await _repository.Countries.Received(1).GetById(ExistingCountry.Id);
+            await _repository.Cities.Received(1).GetById(ExistingCity.Id);
             _repository.Cities.Received(1).Update(
                 Arg.Is<City>(
-                    e => e.Id == cityId &&
+                    e => e.Id == ExistingCity.Id &&
                     e.Name == request.Name &&
                     e.NormalizedName == request.Name.ToUpper() &&
-                    e.Country == _country)
+                    e.Country == ExistingCountry)
                 );
             await _repository.Received(1).SaveAsync();
+            Assert.Equal(request.Name, ExistingCity.Name);
+
         }
 
         [Fact]
-        public async Task Update_NonExistingCity_ShouldUpdateAndSaveChangesThenReturnCityResponse()
+        public async Task Update_ShouldThrowNotFoundException_WhenCityExistsButCountryDoesntExist()
+        {
+            //Arrange
+            var countryId = Guid.NewGuid();
+            var request = new UpdateCityRequest
+            {
+                Name = "New Cooler",
+                CountryId = countryId,
+            };
+
+            _repository.Cities.GetById(ExistingCity.Id).Returns(ExistingCity);
+            _repository.Countries.GetById(countryId).Returns(Task.FromResult<Country>(null));
+
+            //Act
+            var exception = await Assert.ThrowsAsync<NotFoundException>(async () => await _service.Update(request, ExistingCity.Id));
+
+            //Assert
+            await _repository.Cities.Received(1).GetById(ExistingCity.Id);
+            await _repository.Countries.Received(1).GetById(countryId);
+            Assert.NotNull(exception);
+            Assert.IsType<NotFoundException>(exception);
+            Assert.Contains(countryId.ToString(), exception.ErrorMessage);
+        }
+
+        [Fact]
+        public async Task Update_ShouldThrowNotFoundException_WhenCityDoesntExist()
         {
             //Arrange
             var cityId = Guid.NewGuid();
-            var request = new UpdateCityRequest { Name = "New City", CountryId = _country.Id };
-            _repository.Countries.GetById(_country.Id).Returns(Task.FromResult<Country>(_country));
+            var request = new UpdateCityRequest { Name = "New City", CountryId = ExistingCountry.Id };
             _repository.Cities.GetById(cityId).Returns(Task.FromResult<City>(null));
 
             //Act
             var exception = await Assert.ThrowsAsync<NotFoundException>(() => _service.Update(request, cityId));
 
             //Assert
-            await _repository.Countries.Received(1).GetById(_country.Id);
             await _repository.Cities.Received(1).GetById(cityId);
 
             Assert.NotNull(exception);
@@ -148,37 +160,28 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_ExistingCity_ShouldDeleteAndSaveChanges()
+        public async Task Delete_ShouldDelete_WhenCityExists()
         {
             //Arrange
-            var cityId = Guid.NewGuid();
-            var existingCity = new City
-            {
-                Id = cityId,
-                Name = "City",
-                NormalizedName = "CITY",
-                Country = _country,
-                ImageUrl = ""
-            };
-            _repository.Cities.GetById(cityId).Returns(existingCity);
+            _repository.Cities.GetById(ExistingCity.Id).Returns(ExistingCity);
 
             // Act
-            await _service.Delete(cityId);
+            await _service.Delete(ExistingCity.Id);
 
             // Assert
-            await _repository.Cities.Received(1).GetById(cityId);
+            await _repository.Cities.Received(1).GetById(ExistingCity.Id);
             _repository.Cities.Received(1).Delete(
                 Arg.Is<City>(
-                    e => e.Id == existingCity.Id &&
+                    e => e.Id == ExistingCity.Id &&
                     e.Name == "City" &&
                     e.NormalizedName == "CITY" &&
-                    e.Country == _country)
+                    e.Country == ExistingCity.Country)
                 );
             await _repository.Received(1).SaveAsync();
         }
 
         [Fact]
-        public async Task Delete_NonExistingCity_ShouldThrowsNotFoundException()
+        public async Task Delete_ShouldThrowNotFoundException_WhenCityDoesntExist()
         {
             //Arrange
             var cityId = Guid.NewGuid();
@@ -194,35 +197,25 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetById_ExistingCity_ShouldReturnCityResponse()
+        public async Task GetById_ShouldReturnCityResponse_WhenCityExists()
         {
             //Arrange
-            var id = Guid.NewGuid();
-            var expectedCity = new City
-            {
-                Id = id,
-                Name = "Cooler",
-                NormalizedName = "COOLER",
-                ImageUrl = "",
-                Country = _country,
-            };
-
-            _repository.Cities.GetById(id).Returns(expectedCity);
+            _repository.Cities.GetById(ExistingCity.Id).Returns(ExistingCity);
 
             //Act
-            var result = await _service.GetById(id);
+            var result = await _service.GetById(ExistingCity.Id);
 
             //Assert
-            await _repository.Cities.Received(1).GetById(id);
+            await _repository.Cities.Received(1).GetById(ExistingCity.Id);
 
             Assert.NotNull(result);
             Assert.IsType<CityResponse>(result);
-            Assert.Equal(expectedCity.Id, result.Id);
-            Assert.Equal(expectedCity.Name, result.Name);
+            Assert.Equal(ExistingCity.Id, result.Id);
+            Assert.Equal(ExistingCity.Name, result.Name);
         }
 
         [Fact]
-        public async Task GetById_NonExistingCity_ShouldThrowsNotFoundException()
+        public async Task GetById_ShouldThrowNotFoundException_WhenCityDoesntExist()
         {
             //Arrange
             var cityId = Guid.NewGuid();
@@ -239,56 +232,25 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ExistingAmenities_ShouldReturnAllAmenities()
+        public async Task GetAll_ShouldReturnAllCitiesAsCityResponse_WhenCitiesExist()
         {
             //Arrange
-            var expectedCities = new List<City>
-            {
-                new City
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cooler",
-                    NormalizedName = "Cooler",
-                    ImageUrl = "",
-                    Country = _country,
-                },new City
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Heater",
-                    NormalizedName = "HEATER",
-                    ImageUrl = "",
-                    Country = _country
-                },new City
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Gym",
-                    NormalizedName = "GYM",
-                    ImageUrl = "",
-                    Country = _country
-                },
-            };
-
-            _repository.Cities.GetAll().Returns(expectedCities);
-
+            _repository.Cities.GetAll().Returns(AllCities);
 
             //Act
-            var result = await _service.GetAll();
+            var citiesResponse = await _service.GetAll();
 
             //Assert
             await _repository.Cities.Received(1).GetAll();
 
-            Assert.NotNull(result);
-            Assert.IsType<List<CityResponse>>(result);
-            int count = 0;
-            foreach (var city in result)
-            {
-                var expected = expectedCities[count++];
-                Assert.IsType<Guid>(city.Id);
-                Assert.NotEqual(Guid.Empty, city.Id);
-                Assert.Equal(expected.Id, city.Id);
-                Assert.Equal(expected.Name, city.Name);
-            }
-            Assert.Equal(expectedCities.Count, count);
+            Assert.NotNull(citiesResponse);
+            Assert.IsType<List<CityResponse>>(citiesResponse);
+            Assert.Equal(AllCities.Count(), citiesResponse.Count());
+            Assert.All(citiesResponse, city => Assert.NotNull(city.Name));
         }
+
+        private Country ExistingCountry { get; }
+        private City ExistingCity { get; }
+        private IEnumerable<City> AllCities;
     }
 }

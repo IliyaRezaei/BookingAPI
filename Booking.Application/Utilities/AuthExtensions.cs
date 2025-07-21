@@ -16,12 +16,11 @@ namespace Booking.Application.Utilities
     {
         public static string HashPassword(this string password)
         {
-            using (var sha256 = SHA256.Create())
-            {
-                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                var hashedPassword = Convert.ToBase64String(bytes);
-                return hashedPassword;
-            }
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+        public static bool VerifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
 
         public static string GenerateToken(IConfiguration configuration ,ApplicationUser user)
@@ -29,8 +28,7 @@ namespace Booking.Application.Utilities
             var key = configuration["Jwt:Key"];
             var issuer = configuration["Jwt:Issuer"];
             var audience = configuration["Jwt:Audience"];
-            var tokenValidityMins = configuration.GetValue<int>("Jwt:TokenValidityMins");
-            var tokenExpireyDate = DateTime.UtcNow.AddMinutes(tokenValidityMins);
+            var tokenExpireyDate = DateTime.UtcNow.AddMinutes(60);
             // make login with email only so username would not be a security risk to put in the token
             var tokenDescriptor = new SecurityTokenDescriptor
             {
