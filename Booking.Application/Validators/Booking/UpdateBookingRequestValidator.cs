@@ -32,38 +32,23 @@ namespace Booking.Application.Validators.Booking
         }
         private async Task<bool> IsBookingDateValid(DateOnly checkInDate, DateOnly checkOutDate)
         {
-            var daysBooked = (checkOutDate.ToDateTime(TimeOnly.MinValue) - checkInDate.ToDateTime(TimeOnly.MinValue)).Days;
+            var daysBooked = (checkOutDate.ToDateTime(TimeOnly.MinValue) - checkInDate.ToDateTime(TimeOnly.MinValue)).Days + 1;
             if (daysBooked < 1)
             {
                 return false;
             }
-
             var allBookings = await _repositoryManager.Bookings.GetAllUpcomingOfAPropertyById(_propertyId);
             var bookings = allBookings.Where(b => b.Id != _bookingId).ToList();
             foreach (var booking in bookings)
             {
                 var existingCheckIn = booking.CheckIn;
                 var existingCheckOut = booking.CheckOut;
-                bool isOverlappingIn = false;
 
-                if (checkInDate < existingCheckIn)
-                {
-                    if (checkOutDate >= existingCheckIn)
-                    {
-                        isOverlappingIn = true;
-                    }
-                }
-                if (checkInDate > existingCheckOut)
-                {
-                    isOverlappingIn = true;
-                }
-
-                if (isOverlappingIn)
+                if (checkInDate <= existingCheckOut && checkOutDate >= existingCheckIn)
                 {
                     return false;
                 }
             }
-
             return true;
         }
     }

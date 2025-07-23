@@ -29,13 +29,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Validators\City\" />
-    <Folder Include="Validators\Country\" />
-    <Folder Include="Validators\Booking\" />
-    <Folder Include="Validators\Review\" />
-    <Folder Include="Validators\User\" />
-    <Folder Include="Validators\Role\" />
-  </ItemGroup>
-
 </Project>

@@ -53,6 +53,7 @@ namespace Booking.Application.Tests.Unit.Mappers
                 CheckIn = DateOnly.FromDateTime(DateTime.Now),
                 CheckOut = DateOnly.FromDateTime(DateTime.Now.AddDays(days))
             };
+            var daysReserved = days + 1;
 
             //Act
             var entity = request.ToEntity(ExistingClient, ExistingProperty);
@@ -64,7 +65,7 @@ namespace Booking.Application.Tests.Unit.Mappers
             Assert.Equal(BookingStatus.Pending, entity.Status);
             Assert.Equal(entity.Property, ExistingProperty);
             Assert.Equal(entity.Client, ExistingClient);
-            Assert.Equal((days * entity.Property.PricePerNight), entity.TotalCost);
+            Assert.Equal(daysReserved * entity.Property.PricePerNight, entity.TotalCost);
         }
 
         [Fact]

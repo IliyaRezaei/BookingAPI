@@ -25,12 +25,13 @@ namespace Booking.Application.Validators.Booking
                 .Must(date => date <= DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(1)));
 
             RuleFor(x => x)
-                .MustAsync(async (dates, cancellation) => await IsBookingDateValid(dates.CheckIn, dates.CheckOut));
+                .MustAsync(async (dates, cancellation) => await IsBookingDateValid(dates.CheckIn, dates.CheckOut))
+                .WithMessage("interefere with other bookings or bad bookig date");
         }
 
         private async Task<bool> IsBookingDateValid(DateOnly checkInDate, DateOnly checkOutDate)
         {
-            var daysBooked = (checkOutDate.ToDateTime(TimeOnly.MinValue) - checkInDate.ToDateTime(TimeOnly.MinValue)).Days;
+            var daysBooked = (checkOutDate.ToDateTime(TimeOnly.MinValue) - checkInDate.ToDateTime(TimeOnly.MinValue)).Days + 1;
             if (daysBooked < 1)
             {
                 return false;
@@ -41,26 +42,12 @@ namespace Booking.Application.Validators.Booking
             {
                 var existingCheckIn = booking.CheckIn;
                 var existingCheckOut = booking.CheckOut;
-                bool isOverlappingIn = false;
 
-                if (checkInDate < existingCheckIn)
-                {
-                    if(checkOutDate >= existingCheckIn)
-                    {
-                        isOverlappingIn = true;
-                    }
-                }
-                if (checkInDate > existingCheckOut)
-                {
-                    isOverlappingIn = true;
-                }
-
-                if (isOverlappingIn)
+                if (checkInDate <= existingCheckOut && checkOutDate >= existingCheckIn)
                 {
                     return false;
                 }
             }
-
             return true;
         }
     }

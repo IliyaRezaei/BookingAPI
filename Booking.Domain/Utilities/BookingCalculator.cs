@@ -11,7 +11,7 @@ namespace Booking.Domain.Utilities
     {
         public static int CalculateTotalCost(DateOnly CheckInDate, DateOnly CheckOutDate, int pricePerNight)
         {
-            return (CheckOutDate.ToDateTime(TimeOnly.MinValue) - CheckInDate.ToDateTime(TimeOnly.MinValue)).Days * pricePerNight;
+            return ((CheckOutDate.ToDateTime(TimeOnly.MinValue) - CheckInDate.ToDateTime(TimeOnly.MinValue)).Days + 1) * pricePerNight;
         }
     }
 }
