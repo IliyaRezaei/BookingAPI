@@ -15,7 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Unit.Tests.Services
+namespace Booking.Application.Tests.Unit.Services
 {
     public class AmenityServiceTests
     {
@@ -36,7 +36,7 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task Create_ReturnsAmenityResponse_WhenValidRequest()
+        public async Task Create_ShouldReturnAmenityResponse_WhenRequestIsValid()
         {
             //Arrange
             var request = new CreateAmenityRequest { Name = "Cooler" };
@@ -62,7 +62,7 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task Create_ThrowsValidationException_WhenNameIsNotUnique()
+        public async Task Create_ShouldThrowValidationException_WhenNameIsNotUnique()
         {
             //Arrange
             var request = new CreateAmenityRequest { Name = ExistingAmenity.Name };
@@ -189,7 +189,7 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ShouldReturnsAllAmenitiesAsAmenityResponse_WhenAmenitiesExist()
+        public async Task GetAll_ShouldReturnsAllAmenitiesAsAmenityResponse_EvenIfAmenitiesDontExist()
         {
             //Arrange
             _repository.Amenities.GetAll().Returns(AllAmenities);

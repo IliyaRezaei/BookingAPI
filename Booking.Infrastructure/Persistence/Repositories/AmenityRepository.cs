@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Azure.Core.HttpHeader;
 
-namespace Booking.Infrastructure.Repositories
+namespace Booking.Infrastructure.Persistence.Repositories
 {
     internal class AmenityRepository : IAmenityRepository
     {

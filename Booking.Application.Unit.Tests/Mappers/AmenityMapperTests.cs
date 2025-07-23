@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Unit.Tests.Mappers
+namespace Booking.Application.Tests.Unit.Mappers
 {
     public class AmenityMapperTests
     {

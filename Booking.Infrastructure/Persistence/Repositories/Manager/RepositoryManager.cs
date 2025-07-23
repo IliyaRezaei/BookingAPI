@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Infrastructure.Repositories.Manager
+namespace Booking.Infrastructure.Persistence.Repositories.Manager
 {
     internal class RepositoryManager : IRepositoryManager
     {

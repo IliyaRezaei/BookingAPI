@@ -179,7 +179,7 @@ namespace Booking.Application.Tests.Unit.Services
         }
 
         [Fact]
-        public async Task GetAll_ShouldReturnAllRolesAsRoleResponse_WhenRolesExist()
+        public async Task GetAll_ShouldReturnAllRolesAsRoleResponse_EvenIfRolesDontExist()
         {
             //Arrange
             _repository.Roles.GetAll().Returns(AllRoles);

@@ -1,11 +1,5 @@
-﻿using Booking.Domain.Contracts.Booking;
-using Booking.Domain.Contracts.Review;
+﻿using Booking.Domain.Contracts.Review;
 using Booking.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Booking.Application.Mappers
 {
@@ -47,7 +41,7 @@ namespace Booking.Application.Mappers
 
         public static IEnumerable<ReviewResponse> ToResponse(this IEnumerable<Review> reviews)
         {
-            return reviews.Select(r => r.ToResponse());
+            return reviews.Select(r => r.ToResponse()).ToList();
         }
     }
 }

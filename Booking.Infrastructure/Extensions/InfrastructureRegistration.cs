@@ -1,6 +1,6 @@
 ﻿using Booking.Domain.Abstractions.Repositories.Manager;
 using Booking.Infrastructure.Data;
-using Booking.Infrastructure.Repositories.Manager;
+using Booking.Infrastructure.Persistence.Repositories.Manager;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;

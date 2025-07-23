@@ -47,9 +47,7 @@ namespace Booking.Application.Services
                 throw new NotFoundException($"Property with id {propertyId} not found");
             }
 
-            int totalDays = (request.CheckIn.ToDateTime(TimeOnly.MinValue) - request.CheckOut.ToDateTime(TimeOnly.MinValue)).Days;
-            int totalCost = property.PricePerNight * totalDays;
-            var booking = request.ToEntity(client, property, totalCost);
+            var booking = request.ToEntity(client, property);
             await _repositoryManager.Bookings.Create(booking);
             await _repositoryManager.SaveAsync();
             return booking.ToResponse();
@@ -109,9 +107,7 @@ namespace Booking.Application.Services
             {
                 throw new NotFoundException($"Booking with id {id} not found");
             }
-            int totalDays = (request.CheckIn.ToDateTime(TimeOnly.MinValue) - request.CheckOut.ToDateTime(TimeOnly.MinValue)).Days;
-            int totalCost = property.PricePerNight * totalDays;
-            var entity = request.ToEntity(id,client, property, totalCost);
+            var entity = request.ToEntity(id,client, property);
             _repositoryManager.Bookings.Update(entity);
             await _repositoryManager.SaveAsync();
         }

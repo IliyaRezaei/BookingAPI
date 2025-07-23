@@ -2,13 +2,7 @@
 using Booking.Domain.Abstractions.Repositories.Manager;
 using Booking.Domain.Contracts.User;
 using Microsoft.Extensions.Configuration;
-using Castle.Core.Configuration;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 using Booking.Domain.Entities;
 using Booking.Application.Utilities;

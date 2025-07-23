@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Unit.Tests.Validators.Amenity
+namespace Booking.Application.Tests.Unit.Validators.Amenity
 {
     public class UpdateAmenityRequestValidatorTests
     {

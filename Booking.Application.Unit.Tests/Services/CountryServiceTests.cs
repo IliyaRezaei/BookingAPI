@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Unit.Tests.Services
+namespace Booking.Application.Tests.Unit.Services
 {
     public class CountryServiceTests
     {
@@ -199,7 +199,7 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ShouldReturnAllCountriesAsCountryResponse_WhenCountriesExist()
+        public async Task GetAll_ShouldReturnAllCountriesAsCountryResponse_EvenIfCountriesDontExist()
         {
             //Arrange
             _repository.Countries.GetAll().Returns(AllCountries);

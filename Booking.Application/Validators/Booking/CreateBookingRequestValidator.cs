@@ -19,10 +19,10 @@ namespace Booking.Application.Validators.Booking
             _propertyId = propertyId;
 
             RuleFor(x => x.CheckIn)
-                .Must(date => date >= DateOnly.FromDateTime(DateTime.Today));
+                .Must(date => date >= DateOnly.FromDateTime(DateTime.UtcNow));
 
             RuleFor(x => x.CheckOut)
-                .Must(date => date <= DateOnly.FromDateTime(DateTime.Today.AddMonths(1)));
+                .Must(date => date <= DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(1)));
 
             RuleFor(x => x)
                 .MustAsync(async (dates, cancellation) => await IsBookingDateValid(dates.CheckIn, dates.CheckOut));
@@ -30,7 +30,7 @@ namespace Booking.Application.Validators.Booking
 
         private async Task<bool> IsBookingDateValid(DateOnly checkInDate, DateOnly checkOutDate)
         {
-            var daysBooked = (checkInDate.ToDateTime(TimeOnly.MinValue) - checkOutDate.ToDateTime(TimeOnly.MinValue)).Days;
+            var daysBooked = (checkOutDate.ToDateTime(TimeOnly.MinValue) - checkInDate.ToDateTime(TimeOnly.MinValue)).Days;
             if (daysBooked < 1)
             {
                 return false;
@@ -41,10 +41,21 @@ namespace Booking.Application.Validators.Booking
             {
                 var existingCheckIn = booking.CheckIn;
                 var existingCheckOut = booking.CheckOut;
+                bool isOverlappingIn = false;
 
-                bool isOverlapping = checkInDate < existingCheckOut && checkOutDate > existingCheckIn;
+                if (checkInDate < existingCheckIn)
+                {
+                    if(checkOutDate >= existingCheckIn)
+                    {
+                        isOverlappingIn = true;
+                    }
+                }
+                if (checkInDate > existingCheckOut)
+                {
+                    isOverlappingIn = true;
+                }
 
-                if (isOverlapping)
+                if (isOverlappingIn)
                 {
                     return false;
                 }

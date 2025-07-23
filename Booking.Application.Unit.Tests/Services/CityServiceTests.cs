@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Booking.Application.Unit.Tests.Services
+namespace Booking.Application.Tests.Unit.Services
 {
     public class CityServiceTests
     {
@@ -232,7 +232,7 @@ namespace Booking.Application.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ShouldReturnAllCitiesAsCityResponse_WhenCitiesExist()
+        public async Task GetAll_ShouldReturnAllCitiesAsCityResponse_EvenIfCitiesDontExist()
         {
             //Arrange
             _repository.Cities.GetAll().Returns(AllCities);
